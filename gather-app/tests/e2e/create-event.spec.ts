@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
 
+test("landing page offers a clear sign-in entry point", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/sign-in$/);
+  await expect(page.getByRole("heading", { name: "A simple, safer way in." })).toBeVisible();
+  await expect(page.getByLabel("Email address")).toBeVisible();
+});
+
 test("create flow keeps an exact address out of the public preview route", async ({ page }) => {
   const fakeAddress = "12 Example Street, London E8 1AA";
   const requestedUrls: string[] = [];

@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export type AuthActionState = { error?: string; success?: string };
@@ -28,4 +29,14 @@ export async function requestMagicLinkAction(
   } catch {
     return { error: "Sign-in is unavailable until Supabase is configured." };
   }
+}
+
+export async function signOutAction() {
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase.auth.signOut();
+  } catch {
+    // Redirect to a safe public route even when an expired session cannot be cleared remotely.
+  }
+  redirect("/");
 }

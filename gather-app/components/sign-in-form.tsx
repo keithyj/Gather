@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
-export function SignInForm() {
+export function SignInForm({ next }: { next?: string }) {
   const [message, setMessage] = useState<string>();
   const [pending, setPending] = useState(false);
 
@@ -17,9 +17,11 @@ export function SignInForm() {
     setMessage(undefined);
     try {
       const supabase = createBrowserSupabaseClient();
+      const callbackUrl = new URL("/auth/callback", window.location.origin);
+      if (next) callbackUrl.searchParams.set("next", next);
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: new URL("/auth/callback", window.location.origin).toString() }
+        options: { emailRedirectTo: callbackUrl.toString() }
       });
       setMessage(
         error

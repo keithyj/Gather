@@ -37,6 +37,15 @@ Chosen slice: prepare a non-production preview handoff while preserving PKCE and
 - Added the hosted-development runbook. It intentionally does not use or configure a service-role key because no application path requires one.
 - No hosted Supabase project, deployment, credentials, external email service, or production resource was created or changed. Hosted magic-link and two-profile verification remains a user-controlled external gate.
 
+### Authentication entry point — 2026-07-27
+
+Chosen slice: make the existing PKCE sign-in flow discoverable and usable without adding a parallel authentication path.
+
+- The landing and account navigation now provide a visible sign-in route for signed-out visitors and the authenticated user's email/avatar initial, account link, and sign-out action for signed-in visitors.
+- `/sign-in` preserves a safe internal return path through the existing `/auth/callback` flow and redirects an already authenticated user away from the sign-in form.
+- `/create` is server-protected whenever Supabase is configured; the no-credential local preview remains available for visual smoke coverage.
+- Added navigation and server-guard regression assertions plus a Playwright entry-point smoke test. Hosted magic-link completion remains subject to the configured Supabase project and a browser that retains its PKCE state.
+
 ### Implemented surface
 
 - Supabase SSR clients, magic-link request/callback, automatic profile trigger, and profile completion screen.

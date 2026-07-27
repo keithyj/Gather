@@ -17,6 +17,14 @@ describe("hosted-development security regression contract", () => {
     expect(source("app/auth/callback/route.ts")).toContain("destination.origin === base");
   });
 
+  it("exposes an authenticated entry point without changing server-side guards", () => {
+    const header = source("components/site-header.tsx");
+    expect(header).toContain('href="/sign-in"');
+    expect(header).toContain("signOutAction");
+    expect(source("app/create/page.tsx")).toContain('redirect("/sign-in?next=/create")');
+    expect(source("app/sign-in/page.tsx")).toContain("if (user) redirect(next)");
+  });
+
   it("does not reference server secrets from browser-facing modules", () => {
     const browserSource = [
       "components/sign-in-form.tsx",

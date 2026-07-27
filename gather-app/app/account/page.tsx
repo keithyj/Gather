@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Brand } from "@/components/brand";
 import { ProfileForm } from "@/components/profile-form";
+import { SiteHeader } from "@/components/site-header";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -30,12 +29,7 @@ export default async function AccountPage() {
     .maybeSingle();
   return (
     <main className="min-h-screen bg-paper">
-      <header className="mx-auto flex max-w-xl items-center justify-between px-5 py-5">
-        <Brand />
-        <Link href="/create" className="text-sm font-semibold text-ink/65">
-          Create a gathering
-        </Link>
-      </header>
+      <SiteHeader />
       <section className="mx-auto max-w-xl px-5 py-14">
         <p className="text-sm font-semibold uppercase tracking-[.18em] text-moss">Your profile</p>
         <h1 className="mt-3 font-display text-5xl leading-none">A little context goes a long way.</h1>

@@ -25,6 +25,12 @@ pnpm test:e2e
 
 Without Supabase environment variables the app remains in a disabled local-UI state. With a local Supabase stack configured, event creation, invitations, and approved-only location reveal use server actions and RLS. Live database permission tests still require local auth fixtures; see the setup guide before treating the implementation as security verified.
 
+## Authentication routes
+
+- `/sign-in` requests an email magic link and redirects an existing signed-in user to their account (or the safe private route they originally requested).
+- `/auth/callback` completes the existing PKCE exchange. Configure this exact path in Supabase Auth redirect URLs.
+- With Supabase configured, `/create`, `/account`, invitation, and host-management routes enforce authentication server-side. The public landing page exposes sign-in and session-aware account navigation.
+
 ## Working name
 
 **Gather** is a placeholder. Do not spend engineering time on naming or trademarks during the MVP.
