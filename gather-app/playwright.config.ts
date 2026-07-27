@@ -11,6 +11,8 @@ export default defineConfig({
       ...process.env,
       NEXT_PUBLIC_SUPABASE_URL: "",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
+      SUPABASE_SERVICE_ROLE_KEY: "",
       EVENT_DETAILS_ENCRYPTION_KEY: ""
     }
   },

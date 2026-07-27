@@ -20,15 +20,16 @@ For the isolated hosted-development handoff, see [hosted development and browser
 
 1. Install the Supabase CLI and start Docker.
 2. From `gather-app`, run `pnpm supabase start`. It applies `supabase/config.toml` and prints local API URL and anon key.
-3. Copy `.env.example` to `.env.local`. Set the local `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` printed by the CLI.
-4. Generate a development-only encryption key: `openssl rand -base64 32`. Put the result in `EVENT_DETAILS_ENCRYPTION_KEY`.
-5. Run `pnpm supabase db reset` whenever you need to reapply all local migrations.
-6. Start the app with `pnpm dev`, request a magic link, and open the Mailpit URL reported by `pnpm supabase status`.
-7. Complete the profile’s 18+ self-attestation before creating an event. This is not identity verification.
+3. Copy `.env.example` to `.env.local`. Set the local `NEXT_PUBLIC_SUPABASE_URL` and the key printed by the CLI: use `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` when available, or the supported legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` otherwise.
+4. Set `SUPABASE_SERVICE_ROLE_KEY` from the local CLI status output. It is required only by the server-side username sign-in resolver; it must never be prefixed with `NEXT_PUBLIC_` or committed.
+5. Generate a development-only encryption key: `openssl rand -base64 32`. Put the result in `EVENT_DETAILS_ENCRYPTION_KEY`.
+6. Run `pnpm supabase db reset` whenever you need to reapply all local migrations.
+7. Start the app with `pnpm dev`, create an account with a fake email/password, and open the confirmation email in Mailpit if email confirmation is enabled.
+8. Complete the profile’s 18+ self-attestation before creating an event. This is not identity verification.
 
-If a browser reports that the PKCE verifier is unavailable after opening a local magic link, request a fresh link in that same browser and confirm that cookies are enabled for `127.0.0.1`. Do not switch this implementation to an implicit token flow as a workaround.
+Open the confirmation email in the same browser that created the account. Do not switch the confirmation flow to an implicit token flow as a workaround.
 
-Never reuse the local encryption key in preview or production. Never put a service-role key in `.env.local`, browser code, or tests.
+Never reuse the local encryption key in preview or production. The service-role key belongs only in ignored server environment configuration; never put it in browser code or tests.
 
 ## Migration and rollback
 

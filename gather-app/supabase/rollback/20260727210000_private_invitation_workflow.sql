@@ -8,6 +8,8 @@ drop function if exists public.cancel_private_event(uuid);
 drop function if exists public.propose_plus_one_by_identifier(uuid, text, text, text);
 drop function if exists public.create_private_invitation_by_identifier(uuid, text, timestamptz);
 drop function if exists private.resolve_profile_identifier(text);
+revoke execute on function public.resolve_login_email_by_username(text) from service_role;
+drop function if exists public.resolve_login_email_by_username(text);
 alter table public.event_sensitive_details drop column if exists host_contact_ciphertext;
 alter table public.events drop column if exists food_and_drink_notes;
 alter table public.events drop column if exists dress_code;

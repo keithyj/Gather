@@ -68,6 +68,16 @@ begin
 end;
 $$;
 
+create or replace function public.resolve_login_email_by_username(p_username text)
+returns text
+language sql stable security definer set search_path = public, private as $$
+  select contact.email_normalized
+  from public.profiles profile
+  join private.profile_contact_identifiers contact on contact.profile_id = profile.id
+  where lower(profile.username) = lower(trim(p_username))
+  limit 1;
+$$;
+
 create or replace function public.create_private_invitation_by_identifier(p_event_id uuid, p_identifier text, p_expires_at timestamptz)
 returns uuid
 language plpgsql security definer set search_path = public, private as $$
@@ -120,6 +130,8 @@ end;
 $$;
 
 revoke all on function private.resolve_profile_identifier(text) from public, anon, authenticated;
+revoke all on function public.resolve_login_email_by_username(text) from public, anon, authenticated;
+grant execute on function public.resolve_login_email_by_username(text) to service_role;
 revoke all on function public.create_private_invitation_by_identifier(uuid, text, timestamptz) from public;
 revoke all on function public.propose_plus_one_by_identifier(uuid, text, text, text) from public;
 revoke all on function public.cancel_private_event(uuid) from public;

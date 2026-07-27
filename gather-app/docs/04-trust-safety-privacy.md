@@ -10,7 +10,7 @@ The MVP is 18+ only. Do not attempt to support minors in the same launch. Segreg
 
 ### Level 0 — account verified
 
-- Email magic link.
+- Email confirmation for password-based accounts.
 - Device/session controls.
 - Rate limits and bot protection.
 - Required for private invitations.

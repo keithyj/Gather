@@ -14,6 +14,13 @@ describe("private invitation workflow contract", () => {
       "revoke all on private.profile_contact_identifiers from public, anon, authenticated"
     );
     expect(migration).toContain("create or replace function private.resolve_profile_identifier");
+    expect(migration).toContain("create or replace function public.resolve_login_email_by_username");
+    expect(migration).toContain(
+      "revoke all on function public.resolve_login_email_by_username(text) from public, anon, authenticated"
+    );
+    expect(migration).toContain(
+      "grant execute on function public.resolve_login_email_by_username(text) to service_role"
+    );
   });
 
   it("limits identifier invitations, plus-one proposals, and cancellation to RPC boundaries", () => {

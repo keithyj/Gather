@@ -27,9 +27,9 @@ Without Supabase environment variables the app remains in a disabled local-UI st
 
 ## Authentication routes
 
-- `/sign-in` requests an email magic link and redirects an existing signed-in user to their account (or the safe private route they originally requested).
-- `/sign-up` creates a minimal account with a unique username, then confirms it through the same PKCE magic-link callback.
-- `/auth/callback` completes the existing PKCE exchange. Configure this exact path in Supabase Auth redirect URLs.
+- `/sign-in` accepts an email address or unique username plus password, then redirects an existing signed-in user to their dashboard (or the safe private route they originally requested).
+- `/sign-up` creates a minimal account with a unique username and password, then confirms its email through the existing Supabase callback.
+- `/auth/callback` completes the secure Supabase confirmation exchange. Configure this exact path in Supabase Auth redirect URLs.
 - With Supabase configured, `/create`, `/account`, `/dashboard`, `/invitations`, invitation, and host-management routes enforce authentication server-side. The public landing page exposes sign-in, sign-up, and session-aware account navigation.
 
 Private invitations are delivered to the authenticated in-app inbox in this phase. The host can enter a guest's existing Gather email address or `@username`; addresses and private instructions are never included in invitation delivery or calendar downloads.
@@ -42,7 +42,7 @@ Private invitations are delivered to the authenticated in-app inbox in this phas
 
 A successful MVP allows a host to:
 
-- sign in with email magic link;
+- sign up with an email, unique username, and password, then sign in with email/username and password;
 - create a private housewarming event;
 - add teaser details while keeping the exact address hidden;
 - invite friends by link or existing account;

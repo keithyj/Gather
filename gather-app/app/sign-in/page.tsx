@@ -35,15 +35,9 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <p className="text-sm font-semibold uppercase tracking-[.18em] text-moss">Private by default</p>
         <h1 className="mt-3 font-display text-5xl leading-none">A simple, safer way in.</h1>
         <p className="mt-5 max-w-md leading-7 text-ink/65">
-          Use your email to receive a secure sign-in link. We’ll create a minimal profile after you verify it.
+          Sign in with your email address or username and your password.
         </p>
         <SignInForm next={next === "/account" ? undefined : next} />
-        <p className="mt-5 text-sm text-ink/65">
-          New to Gather?{" "}
-          <Link href="/sign-up" className="font-semibold text-moss underline underline-offset-4">
-            Create an account
-          </Link>
-        </p>
       </section>
     </main>
   );

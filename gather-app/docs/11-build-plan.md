@@ -11,7 +11,7 @@
 
 ## Phase 1 — vertical slice: create and respond
 
-- [ ] Email magic-link sign-in.
+- [x] Email/password sign-up and sign-in with email confirmation.
 - [ ] Profile setup.
 - [x] Event creation wizard for the housewarming template.
 - [x] Private event preview page.

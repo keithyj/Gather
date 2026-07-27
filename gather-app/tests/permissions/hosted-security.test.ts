@@ -41,10 +41,16 @@ describe("hosted-development security regression contract", () => {
   it("documents only the environment values this application actually uses", () => {
     const template = source(".env.example");
     expect(template).toContain("NEXT_PUBLIC_SUPABASE_URL=");
-    expect(template).toContain("NEXT_PUBLIC_SUPABASE_ANON_KEY=");
+    expect(template).toContain("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=");
     expect(template).toContain("EVENT_DETAILS_ENCRYPTION_KEY=");
     expect(template).toContain("NEXT_PUBLIC_SITE_URL=");
-    expect(template).not.toContain("SUPABASE_SERVICE_ROLE_KEY=");
+    expect(template).toContain("SUPABASE_SERVICE_ROLE_KEY=");
+  });
+
+  it("keeps username resolution behind a server-only admin client", () => {
+    expect(source("lib/supabase/admin.ts")).toContain('import "server-only"');
+    expect(source("lib/actions/auth.ts")).toContain("resolve_login_email_by_username");
+    expect(source("components/sign-in-form.tsx")).not.toContain("resolve_login_email_by_username");
   });
 
   it("keeps the exact address out of preview, metadata, browser storage, and logs in source", () => {

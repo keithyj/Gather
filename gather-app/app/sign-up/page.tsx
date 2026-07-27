@@ -25,7 +25,8 @@ export default async function SignUpPage() {
         <p className="text-sm font-semibold uppercase tracking-[.18em] text-moss">A private account</p>
         <h1 className="mt-3 font-display text-5xl leading-none">Start with a small introduction.</h1>
         <p className="mt-5 max-w-md leading-7 text-ink/65">
-          Create an adults-only Gather account. We’ll confirm your email before signing you in.
+          Create an adults-only Gather account with a unique username and password. We’ll confirm your email
+          before you can sign in.
         </p>
         <SignInForm mode="signUp" />
         <p className="mt-5 text-sm text-ink/65">

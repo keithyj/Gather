@@ -2,7 +2,7 @@
 
 ## Phase 1 — private housewarming MVP
 
-- Email magic-link authentication.
+- Email/password authentication with email confirmation and a unique username.
 - Optional phone verification later, not required to launch the pilot.
 - Basic profile with display name, avatar, pronouns optional, and verification state.
 - Create, edit, cancel, and close a private event.

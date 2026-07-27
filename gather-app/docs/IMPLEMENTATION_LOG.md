@@ -4,7 +4,7 @@
 
 ### Plan and acceptance criteria
 
-1. Add Supabase browser/server clients, strict public/server environment validation, and an email magic-link callback. The app must remain runnable in a clearly disabled state when credentials are absent.
+1. Add Supabase browser/server clients, strict public/server environment validation, and an email-confirmation callback. The app must remain runnable in a clearly disabled state when credentials are absent.
 2. Add a reversible migration containing profiles, trusted connections, private events, separately encrypted sensitive details, invitations, memberships/attendance, and plus-one requests. Enable RLS on every table and provide security-definer RPCs only where an atomic state transition is required.
 3. Replace the mock repository with server-side event, invitation, and membership operations. Exact address plaintext crosses only the authenticated create action, is encrypted server-side, and is decrypted only after an approved-membership check.
 4. Adapt the existing create flow and add minimal sign-in, host guest-management, and invitation screens without exposing sensitive details in routes, metadata, or client data.
@@ -24,7 +24,7 @@
 - `pnpm supabase db reset` rebuilt the database from version-controlled migrations. The first live RLS run exposed missing PostgreSQL table grants for the API roles; `20260727181000_authenticated_table_grants.sql` adds only the privileges needed for RLS evaluation. The sensitive-details RLS policy remains unchanged and denies unauthorised rows.
 - `pnpm supabase test db` and `pnpm test:permissions:integration` each passed all 11 pgTAP assertions, including host/approved access and pending, declined, removed, revoked, unrelated, and unauthenticated denial.
 - Created an ignored local `.env.local` from `pnpm supabase status -o env`, plus a development-only encryption key. No credential was committed.
-- The Codex in-app browser could request a local magic link but its PKCE verifier was unavailable on return. The implementation preserves PKCE and does not fall back to an implicit token flow. The full interactive two-user browser journey therefore remains unverified in this browser until it can retain the verifier cookie.
+- The Codex in-app browser could not complete the prior local email-link flow because its verifier was unavailable on return. The application now uses password sign-up/sign-in and retains Supabase's secure code-exchange callback for email confirmation; it does not fall back to an implicit token flow.
 - Final local checks passed: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` (13 tests), `pnpm test:permissions` (6 tests), `pnpm test:permissions:integration` (11 pgTAP tests), `pnpm supabase test db` (11 pgTAP tests), `pnpm build`, and `pnpm test:e2e` (1 smoke test).
 
 ### Hosted development preparation — 2026-07-27
@@ -34,8 +34,8 @@ Chosen slice: prepare a non-production preview handoff while preserving PKCE and
 - Canonicalised the browser magic-link redirect to `/auth/callback`, matching the local Supabase redirect configuration. The callback response is explicit `no-store` and does not log link codes or errors.
 - Marked invitation and host-management pages as dynamic and added `private, no-store` plus no-index headers for both route families.
 - Added source-level secret/cache regressions and expanded the Playwright preview test to assert a fake address is absent from its unauthorised URL, HTML, metadata, web storage, console, and observed request URLs.
-- Added the hosted-development runbook. It intentionally does not use or configure a service-role key because no application path requires one.
-- No hosted Supabase project, deployment, credentials, external email service, or production resource was created or changed. Hosted magic-link and two-profile verification remains a user-controlled external gate.
+- Added the hosted-development runbook. The current username/password sign-in action uses a server-only service-role client solely to resolve an existing username to an email; it never exposes this key to browser code.
+- No hosted Supabase project, deployment, credentials, external email service, or production resource was created or changed. Hosted email-confirmation and two-profile verification remains a user-controlled external gate.
 
 ### Authentication entry point — 2026-07-27
 
@@ -44,7 +44,7 @@ Chosen slice: make the existing PKCE sign-in flow discoverable and usable withou
 - The landing and account navigation now provide a visible sign-in route for signed-out visitors and the authenticated user's email/avatar initial, account link, and sign-out action for signed-in visitors.
 - `/sign-in` preserves a safe internal return path through the existing `/auth/callback` flow and redirects an already authenticated user away from the sign-in form.
 - `/create` is server-protected whenever Supabase is configured; the no-credential local preview remains available for visual smoke coverage.
-- Added navigation and server-guard regression assertions plus a Playwright entry-point smoke test. Hosted magic-link completion remains subject to the configured Supabase project and a browser that retains its PKCE state.
+- Added navigation and server-guard regression assertions plus a Playwright entry-point smoke test. Hosted email-confirmation completion remains subject to the configured Supabase project and a browser that retains its session state.
 
 ### Private invitation workflow slice — 2026-07-27
 
@@ -57,7 +57,15 @@ Chosen slice: complete the host-invites-existing-guest path without adding publi
 
 ### Implemented surface
 
-- Supabase SSR clients, magic-link request/callback, automatic profile trigger, and profile completion screen.
+- Supabase SSR clients, email-confirmation callback, automatic profile trigger, and profile completion screen.
+
+### Password authentication correction — 2026-07-27
+
+- Replaced the visible email-link sign-in form with standard password authentication: account creation collects a display name, unique username, email address, and password; sign-in accepts either the email address or username plus password.
+- New accounts still confirm their email through `/auth/callback`. That callback is dynamic, no-store, and safely validates internal return paths. Password sign-in creates the normal Supabase session, so signing out and returning later requires no emailed sign-in link.
+- Added a server-only service-role client and a non-public database resolver for username-to-email lookup. The browser cannot call that resolver or receive the service-role key. Email sign-in avoids this resolver entirely.
+- The environment parser now supports Supabase's current `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` name and the legacy local CLI anon-key name, but intentionally rejects conflicting values. Hosted deployment configuration must add `SUPABASE_SERVICE_ROLE_KEY` as a server secret before username sign-in can work; it must not be pasted into chat or committed.
+- Verification after recreating the local database from all migrations: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` (26 tests), `pnpm test:permissions` (16 tests), `pnpm test:permissions:integration` (11 pgTAP assertions), `pnpm supabase test db` (11 pgTAP assertions), `pnpm build`, and `pnpm test:e2e` (2 browser smoke tests) passed. No hosted account, secret, or deployment was changed.
 - Replaced the mock repository with a server-only approved-details repository. AES-GCM encryption happens before sensitive details enter the database; decryption occurs only after an approved-membership lookup and RLS-sensitive-table query.
 - Migration for profiles, trusted connections, private events, separate sensitive details, invitations, membership/attendance, plus-one requests, and audit records.
 - RLS policies plus atomic RPCs for event creation, invitations, guest responses, host approval, revocation/removal, controlled plus-one proposals, and capacity enforcement.

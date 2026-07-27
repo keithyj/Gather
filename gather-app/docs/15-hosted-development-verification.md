@@ -42,12 +42,13 @@ Magic links must be requested and opened in the same browser profile. Do not cha
 
 Set these exact variables in the preview environment, using the names in `.env.example`:
 
-| Variable                        | Visibility    | Value                                             |
-| ------------------------------- | ------------- | ------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | public        | The isolated development project's HTTPS API URL. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | public        | The development project's anon/publishable key.   |
-| `EVENT_DETAILS_ENCRYPTION_KEY`  | server secret | A new base64-encoded 32-byte development key.     |
-| `NEXT_PUBLIC_SITE_URL`          | public        | `https://<preview-domain>` with no trailing path. |
+| Variable                               | Visibility    | Value                                                   |
+| -------------------------------------- | ------------- | ------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | public        | The isolated development project's HTTPS API URL.       |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | public        | The development project's publishable key.              |
+| `SUPABASE_SERVICE_ROLE_KEY`            | server secret | Used only by the server-side username sign-in resolver. |
+| `EVENT_DETAILS_ENCRYPTION_KEY`         | server secret | A new base64-encoded 32-byte development key.           |
+| `NEXT_PUBLIC_SITE_URL`                 | public        | `https://<preview-domain>` with no trailing path.       |
 
 Generate the development encryption key locally and place it directly in the deployment provider's secret UI:
 
@@ -55,7 +56,7 @@ Generate the development encryption key locally and place it directly in the dep
 openssl rand -base64 32
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY` is deliberately **not** an application environment variable. This application uses the anon key plus the signed-in user's session; it has no service-role client or administrative API path. Do not add a service-role key to the preview environment, browser code, tests, or repository merely because it is available in Supabase.
+`SUPABASE_SERVICE_ROLE_KEY` is required only for the server action that resolves a submitted username to an email before calling Supabase password authentication. It is imported through a `server-only` module and must be configured as a server secret—never use a `NEXT_PUBLIC_` prefix, bundle it in browser code, or commit it. Email/password sign-in does not use this key when the user supplies an email address.
 
 Never reuse the local encryption key. The encryption key must not use a `NEXT_PUBLIC_` prefix. Before deployment, inspect the provider's preview/production scope selection and set these values only for preview/development.
 
@@ -69,7 +70,7 @@ Never reuse the local encryption key. The encryption key must not use a `NEXT_PU
 
 Use a normal browser profile for the host and an independent incognito/private profile or separate browser for the guest. Use two email addresses you control and a fake address such as `12 Example Street, London E8 1AA`.
 
-1. Host requests and opens a magic link in the same host profile, then completes the profile.
+1. Host creates an account with a fake email, unique username, and password, opens the confirmation email in the same host profile, then completes the profile.
 2. Host creates a housewarming, using the fake address.
 3. Guest signs in in the separate profile. Host creates a private invitation for that existing account.
 4. Guest opens the invitation and confirms it shows title, time, broad area, and the locked-address message only.
@@ -93,4 +94,4 @@ Record the browser, account role, URL, expected state, actual state, and whether
 
 ## Automated coverage and remaining boundary
 
-The repository's pgTAP suite proves database-level authorisation against local fixtures. Playwright additionally checks that a fake address is absent from the unauthorised preview URL, HTML, metadata, browser storage, console messages, and observed request URLs. It cannot replace the hosted two-profile test because that test requires real magic links and browser-held PKCE state.
+The repository's pgTAP suite proves database-level authorisation against local fixtures. Playwright additionally checks that a fake address is absent from the unauthorised preview URL, HTML, metadata, browser storage, console messages, and observed request URLs. It cannot replace the hosted two-profile test because that test requires real account confirmation and independent browser sessions.

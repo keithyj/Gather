@@ -5,7 +5,14 @@ test("landing page offers a clear sign-in entry point", async ({ page }) => {
   await page.getByRole("link", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
   await expect(page.getByRole("heading", { name: "A simple, safer way in." })).toBeVisible();
+  await expect(page.getByLabel("Email address or username")).toBeVisible();
+  await expect(page.getByLabel("Password")).toBeVisible();
+  await page.getByRole("link", { name: "Create one" }).click();
+  await expect(page).toHaveURL(/\/sign-up$/);
+  await expect(page.getByLabel("Display name")).toBeVisible();
+  await expect(page.getByLabel("Username")).toBeVisible();
   await expect(page.getByLabel("Email address")).toBeVisible();
+  await expect(page.getByLabel("Password")).toBeVisible();
 });
 
 test("create flow keeps an exact address out of the public preview route", async ({ page }) => {
