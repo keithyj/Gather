@@ -17,19 +17,21 @@ No Supabase project needs to be created to use the local workflow. Creating a ho
 ## Local setup
 
 1. Install the Supabase CLI and start Docker.
-2. From `gather-app`, run `supabase start`. It applies `supabase/config.toml` and prints local API URL and anon key.
+2. From `gather-app`, run `pnpm supabase start`. It applies `supabase/config.toml` and prints local API URL and anon key.
 3. Copy `.env.example` to `.env.local`. Set the local `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` printed by the CLI.
 4. Generate a development-only encryption key: `openssl rand -base64 32`. Put the result in `EVENT_DETAILS_ENCRYPTION_KEY`.
-5. Run `supabase db reset` whenever you need to reapply all local migrations.
-6. Start the app with `pnpm dev`, request a magic link, and open the local mail inbox exposed by Supabase Studio/Inbucket.
+5. Run `pnpm supabase db reset` whenever you need to reapply all local migrations.
+6. Start the app with `pnpm dev`, request a magic link, and open the Mailpit URL reported by `pnpm supabase status`.
 7. Complete the profile’s 18+ self-attestation before creating an event. This is not identity verification.
+
+If a browser reports that the PKCE verifier is unavailable after opening a local magic link, request a fresh link in that same browser and confirm that cookies are enabled for `127.0.0.1`. Do not switch this implementation to an implicit token flow as a workaround.
 
 Never reuse the local encryption key in preview or production. Never put a service-role key in `.env.local`, browser code, or tests.
 
 ## Migration and rollback
 
-- Forward migration: `supabase/migrations/20260727180000_private_housewarming.sql`
-- Local/non-production rollback companion: `supabase/rollback/20260727180000_private_housewarming.sql`
+- Forward migrations: `supabase/migrations/20260727180000_private_housewarming.sql` and `supabase/migrations/20260727181000_authenticated_table_grants.sql`
+- Local/non-production rollback companions: matching files under `supabase/rollback/`
 
 The rollback script deliberately drops private-event data. Use it only for a disposable local database, never as a production rollback plan.
 
@@ -46,11 +48,13 @@ It asserts that RLS is enabled, the general event table has no address field, se
 Run the live database companion only after a local stack is running:
 
 ```bash
-supabase db reset
+pnpm supabase db reset
 pnpm test:permissions:integration
 ```
 
-The integration fixture creates disposable local auth-shaped fixtures and executes unauthenticated, pending, declined, removed, revoked, unrelated, and approved-role ciphertext queries. It is not yet passed in this workspace because the local Supabase stack is unavailable; do not claim end-to-end security verification until it passes.
+The integration fixture creates disposable local auth-shaped fixtures and executes unauthenticated, pending, declined, removed, revoked, unrelated, and approved-role ciphertext queries. It also proves that a guest cannot approve themselves, mutate host-owned event data, or decide a plus-one request. On 2026-07-27, the local stack was reset from migrations and this suite passed with all 11 assertions.
+
+For the full manual browser check, use separate browser profiles for the host and guest. Confirm that the invitation page renders only its safe preview before approval, that revocation removes location access after refresh, and that the protected value is not present in the URL or browser-visible page source while access is denied.
 
 ## Security boundary
 

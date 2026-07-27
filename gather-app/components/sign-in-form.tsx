@@ -1,12 +1,40 @@
 "use client";
 
-import { useActionState } from "react";
-import { requestMagicLinkAction } from "@/lib/actions/auth";
+import { useState } from "react";
+import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 export function SignInForm() {
-  const [state, action, pending] = useActionState(requestMagicLinkAction, {});
+  const [message, setMessage] = useState<string>();
+  const [pending, setPending] = useState(false);
+
+  async function requestMagicLink(formData: FormData) {
+    const email = String(formData.get("email") ?? "").trim();
+    if (!email) {
+      setMessage("Enter a valid email address.");
+      return;
+    }
+    setPending(true);
+    setMessage(undefined);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: new URL("/auth/confirm", window.location.origin).toString() }
+      });
+      setMessage(
+        error
+          ? "We couldn’t send that sign-in link. Please try again."
+          : "Check your email for a sign-in link."
+      );
+    } catch {
+      setMessage("Sign-in is unavailable until Supabase is configured.");
+    } finally {
+      setPending(false);
+    }
+  }
+
   return (
-    <form action={action} className="mt-8 space-y-4" aria-describedby="sign-in-status">
+    <form action={requestMagicLink} className="mt-8 space-y-4" aria-describedby="sign-in-status">
       <div>
         <label htmlFor="email" className="text-sm font-semibold text-ink">
           Email address
@@ -31,9 +59,9 @@ export function SignInForm() {
       <p
         id="sign-in-status"
         aria-live="polite"
-        className={state.error ? "text-sm font-medium text-[#a43d2a]" : "text-sm text-moss"}
+        className={message?.startsWith("Check") ? "text-sm text-moss" : "text-sm font-medium text-[#a43d2a]"}
       >
-        {state.error || state.success}
+        {message}
       </p>
       <p className="text-xs leading-5 text-ink/55">
         Gather is for adults aged 18 and over. Email verification helps reduce impersonation but does not

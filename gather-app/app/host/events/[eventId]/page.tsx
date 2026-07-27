@@ -34,6 +34,10 @@ export default async function HostEventPage({ params }: { params: Promise<{ even
     .select("id, user_id, role, approval_status")
     .eq("event_id", eventId)
     .neq("role", "host");
+  const { data: invitationRows } = await supabase
+    .from("invitations")
+    .select("id, invitee_user_id, status")
+    .eq("event_id", eventId);
   const { data: plusOneRows } = await supabase
     .from("plus_one_requests")
     .select("id, proposed_user_id, status")
@@ -48,12 +52,18 @@ export default async function HostEventPage({ params }: { params: Promise<{ even
     ? await supabase.from("profiles").select("id, display_name").in("id", userIds)
     : { data: [] as { id: string; display_name: string }[] };
   const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.display_name]));
+  const invitationIds = new Map(
+    (invitationRows ?? [])
+      .filter((invitation) => invitation.status === "accepted")
+      .map((invitation) => [invitation.invitee_user_id, invitation.id])
+  );
   const memberships = (membershipRows ?? []).map((row) => ({
     id: row.id,
     userId: row.user_id,
     label: names.get(row.user_id) ?? "Private guest",
     status: row.approval_status,
-    role: row.role
+    role: row.role,
+    invitationId: invitationIds.get(row.user_id)
   }));
   const plusOnes = (plusOneRows ?? []).map((row) => ({
     id: row.id,

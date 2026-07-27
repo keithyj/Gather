@@ -18,9 +18,14 @@
 - Hosts alone can invite, approve, reject, revoke, remove, and approve plus-one requests.
 - Event creation, membership approval, and capacity checks are atomic database operations.
 
-### Current verification boundary
+### Local verification update — 2026-07-27
 
-The repository contains migration-policy contract tests and a gated local-database companion. This machine has no Supabase CLI, Docker daemon, Supabase project, or environment variables, so no migration was applied and no live RLS query was executed. The implementation must not be represented as end-to-end security verified until the local stack is run with authenticated test fixtures.
+- Started the local Supabase stack without creating or linking a hosted project.
+- `pnpm supabase db reset` rebuilt the database from version-controlled migrations. The first live RLS run exposed missing PostgreSQL table grants for the API roles; `20260727181000_authenticated_table_grants.sql` adds only the privileges needed for RLS evaluation. The sensitive-details RLS policy remains unchanged and denies unauthorised rows.
+- `pnpm supabase test db` and `pnpm test:permissions:integration` each passed all 11 pgTAP assertions, including host/approved access and pending, declined, removed, revoked, unrelated, and unauthenticated denial.
+- Created an ignored local `.env.local` from `pnpm supabase status -o env`, plus a development-only encryption key. No credential was committed.
+- The Codex in-app browser could request a local magic link but its PKCE verifier was unavailable on return. The implementation preserves PKCE and does not fall back to an implicit token flow. The full interactive two-user browser journey therefore remains unverified in this browser until it can retain the verifier cookie.
+- Final local checks passed: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` (13 tests), `pnpm test:permissions` (6 tests), `pnpm test:permissions:integration` (11 pgTAP tests), `pnpm supabase test db` (11 pgTAP tests), `pnpm build`, and `pnpm test:e2e` (1 smoke test).
 
 ### Implemented surface
 
@@ -33,7 +38,7 @@ The repository contains migration-policy contract tests and a gated local-databa
 ### Verification
 
 - `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test`, `pnpm test:permissions`, `pnpm build`, and `pnpm test:e2e` passed. The unit suite has 13 tests; the source-level permission suite has 6 tests; the Playwright smoke journey passed.
-- `pnpm test:permissions:integration` is blocked: `supabase: command not found`. Docker is also unavailable. No hosted project was created and no production data or paid service was touched.
+- The remaining browser verification limitation is documented above. No hosted project was created and no production data or paid service was touched.
 
 ## 2026-07-27 — Phase 0 and Phase 1 preview slice
 

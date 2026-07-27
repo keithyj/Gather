@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { decideGuestAction, inviteExistingUserAction } from "@/lib/actions/events";
 
-type Membership = { id: string; userId: string; label: string; status: string; role: string };
+type Membership = {
+  id: string;
+  userId: string;
+  label: string;
+  status: string;
+  role: string;
+  invitationId?: string;
+};
 type PlusOne = { id: string; label: string; status: string };
 
 export function HostGuestManager({
@@ -93,6 +100,15 @@ export function HostGuestManager({
                       Approve guest
                     </button>
                   </div>
+                )}
+                {member.status === "approved" && member.invitationId && (
+                  <button
+                    onClick={() => decide("invitation", member.invitationId!)}
+                    disabled={working}
+                    className="min-h-11 rounded-full border border-[#a43d2a]/25 px-4 text-sm font-semibold text-[#a43d2a]"
+                  >
+                    Revoke access
+                  </button>
                 )}
               </article>
             ))
