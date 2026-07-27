@@ -66,6 +66,16 @@ Chosen slice: complete the host-invites-existing-guest path without adding publi
 - Added a server-only service-role client and a non-public database resolver for username-to-email lookup. The browser cannot call that resolver or receive the service-role key. Email sign-in avoids this resolver entirely.
 - The environment parser now supports Supabase's current `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` name and the legacy local CLI anon-key name, but intentionally rejects conflicting values. Hosted deployment configuration must add `SUPABASE_SERVICE_ROLE_KEY` as a server secret before username sign-in can work; it must not be pasted into chat or committed.
 - Verification after recreating the local database from all migrations: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` (26 tests), `pnpm test:permissions` (16 tests), `pnpm test:permissions:integration` (11 pgTAP assertions), `pnpm supabase test db` (11 pgTAP assertions), `pnpm build`, and `pnpm test:e2e` (2 browser smoke tests) passed. No hosted account, secret, or deployment was changed.
+
+### Confirmation completion diagnostic — 2026-07-27
+
+Chosen slice: make a failed password-account confirmation actionable without disclosing auth-code details or weakening PKCE.
+
+Acceptance criteria:
+
+- A successful confirmation continues to establish an authenticated session through `/auth/callback`.
+- A failed code exchange renders a clear, non-sensitive same-browser/same-host recovery message instead of looking like a second required sign-in.
+- No code, token, email address, or internal authentication error is rendered or logged.
 - Replaced the mock repository with a server-only approved-details repository. AES-GCM encryption happens before sensitive details enter the database; decryption occurs only after an approved-membership lookup and RLS-sensitive-table query.
 - Migration for profiles, trusted connections, private events, separate sensitive details, invitations, membership/attendance, plus-one requests, and audit records.
 - RLS policies plus atomic RPCs for event creation, invitations, guest responses, host approval, revocation/removal, controlled plus-one proposals, and capacity enforcement.

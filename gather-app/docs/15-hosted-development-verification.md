@@ -36,7 +36,7 @@ https://<preview-domain>/auth/callback
 
 Set the hosted development project's Site URL to the preview origin (`https://<preview-domain>`). The `NEXT_PUBLIC_SITE_URL` value below must use the same origin. Do not configure `/auth/confirm`: that former client callback route is intentionally absent.
 
-Magic links must be requested and opened in the same browser profile. Do not change the flow to implicit tokens to accommodate an automated browser.
+The account-confirmation email must be opened in the same browser profile and on the same deployed Gather hostname where sign-up began. A successful confirmation establishes the session automatically; it must not ask for the password again. Do not change the flow to implicit tokens to accommodate an automated browser.
 
 ## Preview environment variables
 

@@ -13,6 +13,8 @@ test("landing page offers a clear sign-in entry point", async ({ page }) => {
   await expect(page.getByLabel("Username")).toBeVisible();
   await expect(page.getByLabel("Email address")).toBeVisible();
   await expect(page.getByLabel("Password")).toBeVisible();
+  await page.goto("/sign-in?error=link_unavailable");
+  await expect(page.getByRole("alert")).toContainText("same browser and on the same Gather address");
 });
 
 test("create flow keeps an exact address out of the public preview route", async ({ page }) => {

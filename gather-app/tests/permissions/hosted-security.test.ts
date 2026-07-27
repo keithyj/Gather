@@ -25,6 +25,14 @@ describe("hosted-development security regression contract", () => {
     expect(source("app/sign-in/page.tsx")).toContain("if (user) redirect(next)");
   });
 
+  it("keeps confirmation failures safe and explains the same-browser recovery path", () => {
+    const signInPage = source("app/sign-in/page.tsx");
+    expect(signInPage).toContain('parameters.error === "link_unavailable"');
+    expect(signInPage).toContain("same browser and on the same Gather address");
+    expect(signInPage).not.toContain("console.");
+    expect(source("components/sign-in-form.tsx")).toContain("we’ll sign you in automatically");
+  });
+
   it("does not reference server secrets from browser-facing modules", () => {
     const browserSource = [
       "components/sign-in-form.tsx",

@@ -76,7 +76,7 @@ export function SignInForm({ next, mode = "signIn" }: { next?: string; mode?: Au
       setMessage(
         error
           ? "We couldn’t create that account. Try another username or sign in if you already have an account."
-          : "Check your email to confirm your account."
+          : "Check your email to confirm your account. Keep using this same browser and Gather address—we’ll sign you in automatically."
       );
     } catch {
       setMessage("Account creation is unavailable until Supabase is configured.");

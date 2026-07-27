@@ -14,8 +14,19 @@ function safeNext(next: string | undefined) {
     : "/account";
 }
 
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
-  const next = safeNext((await searchParams).next);
+export default async function SignInPage({
+  searchParams
+}: {
+  searchParams: Promise<{ next?: string; error?: string }>;
+}) {
+  const parameters = await searchParams;
+  const next = safeNext(parameters.next);
+  const confirmationProblem =
+    parameters.error === "link_unavailable"
+      ? "We couldn’t finish email confirmation in this browser. Open a fresh confirmation email in the same browser and on the same Gather address where you created your account."
+      : parameters.error === "missing_code"
+        ? "That confirmation link is incomplete. Request a fresh confirmation email from the same browser where you created your account."
+        : undefined;
   if (isSupabaseConfigured()) {
     const supabase = await createServerSupabaseClient();
     const {
@@ -37,6 +48,14 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <p className="mt-5 max-w-md leading-7 text-ink/65">
           Sign in with your email address or username and your password.
         </p>
+        {confirmationProblem && (
+          <p
+            role="alert"
+            className="mt-5 rounded-2xl border border-clay/25 bg-clay/10 p-4 text-sm leading-6 text-ink"
+          >
+            {confirmationProblem}
+          </p>
+        )}
         <SignInForm next={next === "/account" ? undefined : next} />
       </section>
     </main>
