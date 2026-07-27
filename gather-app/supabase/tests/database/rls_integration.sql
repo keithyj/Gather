@@ -7,14 +7,14 @@ select plan(11);
 -- The RLS assertions below execute as anon/authenticated, never as the database owner.
 set local session_replication_role = replica;
 
-insert into public.profiles (id, display_name, age_over_18) values
-  ('00000000-0000-0000-0000-000000000001', 'Host', true),
-  ('00000000-0000-0000-0000-000000000002', 'Approved guest', true),
-  ('00000000-0000-0000-0000-000000000003', 'Pending guest', true),
-  ('00000000-0000-0000-0000-000000000004', 'Declined guest', true),
-  ('00000000-0000-0000-0000-000000000005', 'Removed guest', true),
-  ('00000000-0000-0000-0000-000000000006', 'Revoked guest', true),
-  ('00000000-0000-0000-0000-000000000007', 'Unrelated user', true);
+insert into public.profiles (id, display_name, username, age_over_18) values
+  ('00000000-0000-0000-0000-000000000001', 'Host', 'host_fixture', true),
+  ('00000000-0000-0000-0000-000000000002', 'Approved guest', 'approved_fixture', true),
+  ('00000000-0000-0000-0000-000000000003', 'Pending guest', 'pending_fixture', true),
+  ('00000000-0000-0000-0000-000000000004', 'Declined guest', 'declined_fixture', true),
+  ('00000000-0000-0000-0000-000000000005', 'Removed guest', 'removed_fixture', true),
+  ('00000000-0000-0000-0000-000000000006', 'Revoked guest', 'revoked_fixture', true),
+  ('00000000-0000-0000-0000-000000000007', 'Unrelated user', 'unrelated_fixture', true);
 
 insert into public.events (id, host_user_id, title, description, starts_at, timezone, broad_area, capacity)
 values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Private housewarming', 'A private event used only for local RLS verification.', now() + interval '1 day', 'Europe/London', 'Hackney', 12);

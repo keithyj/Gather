@@ -1,0 +1,18 @@
+-- Local/non-production rollback only. Do not use this on a project containing real user data.
+revoke execute on function public.cancel_private_event(uuid) from authenticated;
+revoke execute on function public.set_private_event_details(uuid, text, text) from authenticated;
+drop function if exists public.set_private_event_details(uuid, text, text);
+revoke execute on function public.propose_plus_one_by_identifier(uuid, text, text, text) from authenticated;
+revoke execute on function public.create_private_invitation_by_identifier(uuid, text, timestamptz) from authenticated;
+drop function if exists public.cancel_private_event(uuid);
+drop function if exists public.propose_plus_one_by_identifier(uuid, text, text, text);
+drop function if exists public.create_private_invitation_by_identifier(uuid, text, timestamptz);
+drop function if exists private.resolve_profile_identifier(text);
+alter table public.event_sensitive_details drop column if exists host_contact_ciphertext;
+alter table public.events drop column if exists food_and_drink_notes;
+alter table public.events drop column if exists dress_code;
+drop table if exists private.profile_contact_identifiers;
+drop schema if exists private;
+drop index if exists public.profiles_username_lower_unique;
+alter table public.profiles drop constraint if exists profiles_username_format;
+alter table public.profiles drop column if exists username;

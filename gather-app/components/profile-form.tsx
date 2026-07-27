@@ -5,16 +5,33 @@ import { updateProfileAction } from "@/lib/actions/profile";
 
 export function ProfileForm({
   displayName,
+  username,
   pronouns,
   ageOver18
 }: {
   displayName: string;
+  username: string;
   pronouns: string | null;
   ageOver18: boolean;
 }) {
   const [state, action, pending] = useActionState(updateProfileAction, {});
   return (
     <form action={action} className="mt-8 space-y-5">
+      <div>
+        <label htmlFor="username" className="text-sm font-semibold">
+          Username
+        </label>
+        <input
+          id="username"
+          name="username"
+          defaultValue={username}
+          minLength={3}
+          maxLength={24}
+          pattern="[A-Za-z0-9_]+"
+          className="mt-1.5 min-h-11 w-full rounded-xl border border-ink/15 bg-white px-3 outline-none focus:ring-2 focus:ring-moss/20"
+        />
+        <p className="mt-1 text-xs text-ink/55">Friends can use this or your email to invite you.</p>
+      </div>
       <div>
         <label htmlFor="displayName" className="text-sm font-semibold">
           Display name

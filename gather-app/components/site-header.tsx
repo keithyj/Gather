@@ -60,12 +60,20 @@ export async function SiteHeader() {
             </form>
           </>
         ) : (
-          <Link
-            href="/sign-in"
-            className="min-h-10 rounded-full border border-ink/15 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-ink/35 focus:outline-none focus:ring-2 focus:ring-clay"
-          >
-            Sign in
-          </Link>
+          <>
+            <Link
+              href="/sign-in"
+              className="min-h-10 rounded-full border border-ink/15 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-ink/35 focus:outline-none focus:ring-2 focus:ring-clay"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/sign-up"
+              className="min-h-10 rounded-full bg-moss px-4 py-2.5 text-sm font-semibold text-paper transition hover:bg-ink focus:outline-none focus:ring-2 focus:ring-clay"
+            >
+              Sign up
+            </Link>
+          </>
         )}
         <Link
           href="/create"

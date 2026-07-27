@@ -7,6 +7,11 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 export type ProfileActionState = { error?: string; success?: string };
 
 const profileSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9_]{3,24}$/, "Use 3–24 letters, numbers, or underscores."),
   displayName: z.string().trim().min(1, "Add a display name.").max(80),
   pronouns: z.string().trim().max(80).optional(),
   ageOver18: z.literal(true, { errorMap: () => ({ message: "Gather is for adults aged 18 and over." }) })
@@ -18,6 +23,7 @@ export async function updateProfileAction(
 ): Promise<ProfileActionState> {
   const parsed = profileSchema.safeParse({
     displayName: formData.get("displayName"),
+    username: formData.get("username"),
     pronouns: formData.get("pronouns") || undefined,
     ageOver18: formData.get("ageOver18") === "on"
   });
@@ -32,12 +38,13 @@ export async function updateProfileAction(
     const { error } = await supabase
       .from("profiles")
       .update({
+        username: parsed.data.username,
         display_name: parsed.data.displayName,
         pronouns: parsed.data.pronouns || null,
         age_over_18: true
       })
       .eq("id", user.id);
-    if (error) return { error: "We couldn’t save your profile. Please try again." };
+    if (error) return { error: "We couldn’t save your profile. That username may already be taken." };
     revalidatePath("/account");
     return { success: "Profile saved." };
   } catch {

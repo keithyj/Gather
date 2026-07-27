@@ -46,6 +46,15 @@ Chosen slice: make the existing PKCE sign-in flow discoverable and usable withou
 - `/create` is server-protected whenever Supabase is configured; the no-credential local preview remains available for visual smoke coverage.
 - Added navigation and server-guard regression assertions plus a Playwright entry-point smoke test. Hosted magic-link completion remains subject to the configured Supabase project and a browser that retains its PKCE state.
 
+### Private invitation workflow slice — 2026-07-27
+
+Chosen slice: complete the host-invites-existing-guest path without adding public discovery or outbound email delivery.
+
+- Added sign-up metadata for a unique username, with email identifiers isolated in a non-API schema and resolved only by security-definer invitation RPCs.
+- Added an authenticated dashboard and in-app invitation inbox. Hosts invite existing accounts by email or `@username`; the guest can accept, await host approval, request an allowed plus-one, receive an approved-only private-detail reveal, and observe cancellation/revocation immediately on the next request.
+- Added separate encrypted entry instructions and optional host contact, a safe broad-area-only calendar download, host cancellation, and provider-neutral in-app invitation delivery. No real email was sent or configured.
+- After Docker Desktop was repaired, `pnpm supabase db reset` applied the workflow migration cleanly and both `pnpm test:permissions:integration` and `pnpm supabase test db` passed all 11 pgTAP assertions. The fixture was updated with required usernames introduced by the migration.
+
 ### Implemented surface
 
 - Supabase SSR clients, magic-link request/callback, automatic profile trigger, and profile completion screen.

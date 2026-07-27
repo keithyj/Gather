@@ -38,6 +38,12 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           Use your email to receive a secure sign-in link. We’ll create a minimal profile after you verify it.
         </p>
         <SignInForm next={next === "/account" ? undefined : next} />
+        <p className="mt-5 text-sm text-ink/65">
+          New to Gather?{" "}
+          <Link href="/sign-up" className="font-semibold text-moss underline underline-offset-4">
+            Create an account
+          </Link>
+        </p>
       </section>
     </main>
   );

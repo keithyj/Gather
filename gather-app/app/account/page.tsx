@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { ProfileForm } from "@/components/profile-form";
 import { SiteHeader } from "@/components/site-header";
+import Link from "next/link";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -24,7 +25,7 @@ export default async function AccountPage() {
   if (!user) redirect("/sign-in");
   const { data: profile } = await supabase
     .from("profiles")
-    .select("display_name, pronouns, age_over_18")
+    .select("display_name, username, pronouns, age_over_18")
     .eq("id", user.id)
     .maybeSingle();
   return (
@@ -36,8 +37,15 @@ export default async function AccountPage() {
         <p className="mt-5 leading-7 text-ink/65">
           Your display name is shared only within your private invitation and event contexts.
         </p>
+        <Link
+          href="/dashboard"
+          className="mt-5 inline-flex min-h-11 items-center rounded-full border border-ink/15 px-4 text-sm font-semibold"
+        >
+          Open your dashboard
+        </Link>
         <ProfileForm
           displayName={profile?.display_name ?? "Gather guest"}
+          username={profile?.username ?? ""}
           pronouns={profile?.pronouns ?? null}
           ageOver18={profile?.age_over_18 ?? false}
         />

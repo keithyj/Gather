@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Brand } from "@/components/brand";
 import { InvitationResponse } from "@/components/invitation-response";
+import { PlusOneRequestForm } from "@/components/plus-one-request-form";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getInvitationView } from "@/lib/event-repository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -30,7 +31,8 @@ export default async function InvitationPage({ params }: { params: Promise<{ inv
   const invitation = await getInvitationView(invitationId);
   if (!invitation) notFound();
   const isExpired = new Date(invitation.expiresAt) <= new Date();
-  const canRespond = invitation.status === "pending" && !isExpired;
+  const isCancelled = invitation.event.status === "cancelled";
+  const canRespond = invitation.status === "pending" && !isExpired && !isCancelled;
   return (
     <main className="min-h-screen bg-moss px-5 py-5 sm:px-8">
       <header className="mx-auto flex max-w-2xl items-center justify-between">
@@ -58,7 +60,19 @@ export default async function InvitationPage({ params }: { params: Promise<{ inv
               <dd className="mt-1 font-semibold">{invitation.event.broadArea}</dd>
             </div>
           </dl>
-          {invitation.approvedDetails ? (
+          {isCancelled ? (
+            <section className="mt-5 rounded-2xl border border-clay/25 bg-[#fff8f5] p-5">
+              <p className="font-semibold text-[#a43d2a]">This gathering has been cancelled.</p>
+              <p className="mt-1 text-sm leading-6 text-ink/65">
+                Private location details are no longer available.
+              </p>
+            </section>
+          ) : invitation.membershipStatus === "declined" || invitation.membershipStatus === "removed" ? (
+            <section className="mt-5 rounded-2xl border border-clay/25 bg-[#fff8f5] p-5">
+              <p className="font-semibold text-[#a43d2a]">This invitation is no longer available.</p>
+              <p className="mt-1 text-sm leading-6 text-ink/65">The host has not approved this place.</p>
+            </section>
+          ) : invitation.approvedDetails ? (
             <section className="mt-5 rounded-2xl border border-moss/20 bg-mist/60 p-5">
               <p className="font-semibold text-moss">
                 You’re on the guest list. The private event details are now unlocked.
@@ -72,6 +86,12 @@ export default async function InvitationPage({ params }: { params: Promise<{ inv
                   {invitation.approvedDetails.entryInstructions}
                 </p>
               )}
+              {invitation.approvedDetails.hostContact && (
+                <p className="mt-3 text-sm leading-6 text-ink/70">
+                  <span className="font-semibold">Host contact:</span>{" "}
+                  {invitation.approvedDetails.hostContact}
+                </p>
+              )}
             </section>
           ) : (
             <section className="mt-5 rounded-2xl border border-dashed border-moss/30 bg-mist/60 p-5">
@@ -82,11 +102,20 @@ export default async function InvitationPage({ params }: { params: Promise<{ inv
             </section>
           )}
           {canRespond && <InvitationResponse invitationId={invitation.id} />}
+          <Link
+            href={`/invitations/${invitation.id}/calendar`}
+            className="mt-6 inline-flex min-h-11 items-center rounded-full border border-ink/15 px-4 text-sm font-semibold text-ink hover:border-moss"
+          >
+            Add safe details to calendar
+          </Link>
+          {invitation.approvedDetails && invitation.event.plusOnePolicy !== "none" && (
+            <PlusOneRequestForm eventId={invitation.event.id} />
+          )}
           {!canRespond && !invitation.approvedDetails && (
             <p className="mt-6 text-sm text-ink/60">
               {isExpired
                 ? "This invitation has expired."
-                : invitation.status === "accepted"
+                : invitation.status === "accepted" && invitation.membershipStatus === "requested"
                   ? "Your request is awaiting host approval."
                   : "This invitation is no longer available."}
             </p>

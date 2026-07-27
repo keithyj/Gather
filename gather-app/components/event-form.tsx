@@ -16,6 +16,11 @@ const defaultValues: HousewarmingInput = {
   broadArea: "Hackney, East London",
   exactAddress: "",
   description: "A slow dinner, a few new introductions, and a toast to this little place.",
+  eventType: "housewarming",
+  dressCode: "",
+  foodAndDrinkNotes: "",
+  entryInstructions: "",
+  hostContact: "",
   capacity: 14,
   plusOnePolicy: "selected",
   alcoholPresent: true,
@@ -74,6 +79,14 @@ export function EventForm() {
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="eventType">
+              Event type
+            </label>
+            <select id="eventType" className={fieldClass} {...register("eventType")}>
+              <option value="housewarming">Housewarming</option>
+            </select>
+          </div>
+          <div className="sm:col-span-2">
             <label className={labelClass} htmlFor="title">
               Gathering title
             </label>
@@ -86,6 +99,28 @@ export function EventForm() {
             </label>
             <input id="date" type="date" className={fieldClass} {...register("date")} />
             <FieldError message={errors.date?.message} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="entryInstructions">
+              Private entry instructions <span className="text-clay">approved guests only</span>
+            </label>
+            <textarea
+              id="entryInstructions"
+              rows={2}
+              className={fieldClass}
+              {...register("entryInstructions")}
+            />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="hostContact">
+              Host contact <span className="text-clay">approved guests only</span>
+            </label>
+            <input
+              id="hostContact"
+              className={fieldClass}
+              placeholder="Optional phone or email"
+              {...register("hostContact")}
+            />
           </div>
           <div>
             <label className={labelClass} htmlFor="timezone">
@@ -111,6 +146,28 @@ export function EventForm() {
             </label>
             <input id="endTime" type="time" className={fieldClass} {...register("endTime")} />
             <FieldError message={errors.endTime?.message} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="dressCode">
+              Dress code <span className="font-normal text-ink/50">(optional)</span>
+            </label>
+            <input
+              id="dressCode"
+              className={fieldClass}
+              placeholder="e.g. Come as you are"
+              {...register("dressCode")}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className={labelClass} htmlFor="foodAndDrinkNotes">
+              Food and drink notes <span className="font-normal text-ink/50">(optional)</span>
+            </label>
+            <textarea
+              id="foodAndDrinkNotes"
+              rows={2}
+              className={fieldClass}
+              {...register("foodAndDrinkNotes")}
+            />
           </div>
           <div className="sm:col-span-2">
             <label className={labelClass} htmlFor="description">

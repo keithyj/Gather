@@ -28,7 +28,7 @@ export default async function HostEventPage({ params }: { params: Promise<{ even
   if (!user) redirect(`/sign-in?next=/host/events/${eventId}`);
   const { data: event } = await supabase
     .from("events")
-    .select("id, host_user_id, title, broad_area, starts_at, capacity")
+    .select("id, host_user_id, title, broad_area, starts_at, capacity, status")
     .eq("id", eventId)
     .maybeSingle();
   if (!event || event.host_user_id !== user.id) notFound();
@@ -96,7 +96,12 @@ export default async function HostEventPage({ params }: { params: Promise<{ even
           effect at the database policy level immediately.
         </p>
         <div className="mt-8">
-          <HostGuestManager eventId={eventId} memberships={memberships} plusOnes={plusOnes} />
+          <HostGuestManager
+            eventId={eventId}
+            memberships={memberships}
+            plusOnes={plusOnes}
+            eventStatus={event.status}
+          />
         </div>
       </section>
     </main>

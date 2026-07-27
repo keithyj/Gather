@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { decideGuestAction, inviteExistingUserAction } from "@/lib/actions/events";
+import { cancelEventAction, decideGuestAction, inviteExistingUserAction } from "@/lib/actions/events";
 
 type Membership = {
   id: string;
@@ -16,11 +16,13 @@ type PlusOne = { id: string; label: string; status: string };
 export function HostGuestManager({
   eventId,
   memberships,
-  plusOnes
+  plusOnes,
+  eventStatus
 }: {
   eventId: string;
   memberships: Membership[];
   plusOnes: PlusOne[];
+  eventStatus: string;
 }) {
   const [message, setMessage] = useState<string>();
   const [working, setWorking] = useState(false);
@@ -28,9 +30,17 @@ export function HostGuestManager({
     setWorking(true);
     const result = await inviteExistingUserAction({
       eventId,
-      inviteeId: String(formData.get("inviteeId")),
+      recipient: String(formData.get("recipient")),
       expiresAt: new Date(String(formData.get("expiresAt"))).toISOString()
     });
+    setMessage(result.error || result.success);
+    setWorking(false);
+  }
+  async function cancel() {
+    if (!window.confirm("Cancel this gathering? Guests will no longer be able to access private details."))
+      return;
+    setWorking(true);
+    const result = await cancelEventAction(eventId);
     setMessage(result.error || result.success);
     setWorking(false);
   }
@@ -43,20 +53,20 @@ export function HostGuestManager({
   return (
     <div className="space-y-7">
       <section className="rounded-3xl border border-ink/10 bg-white p-5">
-        <h2 className="font-display text-3xl">Invite an existing member</h2>
+        <h2 className="font-display text-3xl">Invite someone you know</h2>
         <p className="mt-2 text-sm leading-6 text-ink/60">
-          For this private pilot, use a signed-in guest’s account ID. No invitation email is sent, and no
-          address is included in this step.
+          Enter their Gather username (with or without @) or the email on their Gather account. The invitation
+          appears in their private inbox; no address is sent.
         </p>
         <form action={invite} className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
-          <label className="sr-only" htmlFor="inviteeId">
-            Guest account ID
+          <label className="sr-only" htmlFor="recipient">
+            Guest email or username
           </label>
           <input
-            id="inviteeId"
-            name="inviteeId"
+            id="recipient"
+            name="recipient"
             required
-            placeholder="Guest account ID"
+            placeholder="name@example.com or @maya_s"
             className="min-h-11 rounded-xl border border-ink/15 px-3 outline-none focus:ring-2 focus:ring-moss/20"
           />
           <input name="expiresAt" type="hidden" value={new Date(Date.now() + 7 * 86400000).toISOString()} />
@@ -68,6 +78,22 @@ export function HostGuestManager({
           </button>
         </form>
       </section>
+      {eventStatus === "active" && (
+        <section className="rounded-3xl border border-[#a43d2a]/20 bg-[#fff8f5] p-5">
+          <h2 className="font-display text-2xl">Need to cancel?</h2>
+          <p className="mt-2 text-sm leading-6 text-ink/65">
+            This immediately changes the guest-facing state and removes access to protected event details.
+          </p>
+          <button
+            type="button"
+            onClick={cancel}
+            disabled={working}
+            className="mt-4 min-h-11 rounded-full border border-[#a43d2a]/30 px-4 text-sm font-semibold text-[#a43d2a] disabled:opacity-60"
+          >
+            Cancel gathering
+          </button>
+        </section>
+      )}
       <section>
         <h2 className="font-display text-3xl">Attendance requests</h2>
         <div className="mt-4 space-y-3">

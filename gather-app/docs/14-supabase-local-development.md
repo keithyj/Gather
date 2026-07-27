@@ -32,7 +32,7 @@ Never reuse the local encryption key in preview or production. Never put a servi
 
 ## Migration and rollback
 
-- Forward migrations: `supabase/migrations/20260727180000_private_housewarming.sql` and `supabase/migrations/20260727181000_authenticated_table_grants.sql`
+- Forward migrations: `supabase/migrations/20260727180000_private_housewarming.sql`, `supabase/migrations/20260727181000_authenticated_table_grants.sql`, and `supabase/migrations/20260727210000_private_invitation_workflow.sql`
 - Local/non-production rollback companions: matching files under `supabase/rollback/`
 
 The rollback script deliberately drops private-event data. Use it only for a disposable local database, never as a production rollback plan.
@@ -61,3 +61,5 @@ For the full manual browser check, use separate browser profiles for the host an
 ## Security boundary
 
 The UI does not decide whether a guest may see a location. The invitation screen requests event general information under RLS, then requests encrypted details only when the membership is approved. If an invitation is revoked or membership is removed, the database policy denies the sensitive query on the next request, without requiring the guest to sign out.
+
+The invitation workflow uses a private in-app inbox while delivery remains provider-neutral. It does not send external email or log invitation links. A future Mailpit or transactional-email adapter must send safe event context only—never an exact address, entry instructions, host contact, or private invitation credential.
