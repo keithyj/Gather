@@ -18,7 +18,7 @@ export async function requestMagicLinkAction(
   try {
     const supabase = await createServerSupabaseClient();
     // Do not derive magic-link redirects from a request Host/Origin header.
-    const origin = process.env.NEXT_PUBLIC_APP_URL ?? "http://127.0.0.1:3000";
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1:3000";
     const { error } = await supabase.auth.signInWithOtp({
       email: parsed.data.email,
       options: { emailRedirectTo: new URL("/auth/callback", origin).toString() }

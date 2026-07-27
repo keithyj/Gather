@@ -27,6 +27,16 @@
 - The Codex in-app browser could request a local magic link but its PKCE verifier was unavailable on return. The implementation preserves PKCE and does not fall back to an implicit token flow. The full interactive two-user browser journey therefore remains unverified in this browser until it can retain the verifier cookie.
 - Final local checks passed: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` (13 tests), `pnpm test:permissions` (6 tests), `pnpm test:permissions:integration` (11 pgTAP tests), `pnpm supabase test db` (11 pgTAP tests), `pnpm build`, and `pnpm test:e2e` (1 smoke test).
 
+### Hosted development preparation — 2026-07-27
+
+Chosen slice: prepare a non-production preview handoff while preserving PKCE and keeping all sensitive routes dynamically rendered and non-cacheable.
+
+- Canonicalised the browser magic-link redirect to `/auth/callback`, matching the local Supabase redirect configuration. The callback response is explicit `no-store` and does not log link codes or errors.
+- Marked invitation and host-management pages as dynamic and added `private, no-store` plus no-index headers for both route families.
+- Added source-level secret/cache regressions and expanded the Playwright preview test to assert a fake address is absent from its unauthorised URL, HTML, metadata, web storage, console, and observed request URLs.
+- Added the hosted-development runbook. It intentionally does not use or configure a service-role key because no application path requires one.
+- No hosted Supabase project, deployment, credentials, external email service, or production resource was created or changed. Hosted magic-link and two-profile verification remains a user-controlled external gate.
+
 ### Implemented surface
 
 - Supabase SSR clients, magic-link request/callback, automatic profile trigger, and profile completion screen.

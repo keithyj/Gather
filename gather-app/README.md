@@ -7,7 +7,7 @@ The first real-world pilot is a housewarming meal. The MVP should optimise for o
 ## Start here
 
 1. Install dependencies with `corepack pnpm install`. If your local Corepack installation has an outdated signing key, use `npm exec --yes --package=pnpm@9.15.4 pnpm install` instead.
-2. For the Supabase-backed private-event flow, follow [the local Supabase setup guide](docs/14-supabase-local-development.md). Keep secrets out of version control.
+2. For the Supabase-backed private-event flow, follow [the local Supabase setup guide](docs/14-supabase-local-development.md). For an isolated hosted preview, use the [hosted-development verification guide](docs/15-hosted-development-verification.md). Keep secrets out of version control.
 3. Run `pnpm dev`, then open [http://localhost:3000](http://localhost:3000).
 
 ## Verification commands

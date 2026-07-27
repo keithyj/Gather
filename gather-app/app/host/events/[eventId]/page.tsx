@@ -5,6 +5,9 @@ import { HostGuestManager } from "@/components/host-guest-manager";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function HostEventPage({ params }: { params: Promise<{ eventId: string }> }) {
   const { eventId } = await params;
   if (!isSupabaseConfigured())

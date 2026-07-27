@@ -6,6 +6,9 @@ import { isSupabaseConfigured } from "@/lib/env";
 import { getInvitationView } from "@/lib/event-repository";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function InvitationPage({ params }: { params: Promise<{ invitationId: string }> }) {
   const { invitationId } = await params;
   if (!isSupabaseConfigured())

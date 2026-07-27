@@ -14,6 +14,8 @@ The encryption key is server-only. It is not an alternative to RLS: RLS limits w
 
 No Supabase project needs to be created to use the local workflow. Creating a hosted project, configuring hosted email delivery, or adding production environment variables is a separate user-authorised step.
 
+For the isolated hosted-development handoff, see [hosted development and browser-flow verification](15-hosted-development-verification.md).
+
 ## Local setup
 
 1. Install the Supabase CLI and start Docker.

@@ -19,7 +19,7 @@
 - [ ] RSVP request.
 - [ ] Host approval queue.
 - [ ] Approved-only exact address reveal.
-- [ ] RLS tests proving unauthorised users cannot retrieve the address.
+- [x] RLS tests proving unauthorised users cannot retrieve the address.
 - [x] Responsive, accessible UI with loading and failure states.
 
 ## Phase 2 — controlled social graph
