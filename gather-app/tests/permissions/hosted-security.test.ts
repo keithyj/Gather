@@ -27,10 +27,11 @@ describe("hosted-development security regression contract", () => {
 
   it("keeps confirmation failures safe and explains the same-browser recovery path", () => {
     const signInPage = source("app/sign-in/page.tsx");
-    expect(signInPage).toContain('parameters.error === "link_unavailable"');
+    expect(signInPage).toContain("confirmation_browser_mismatch");
     expect(signInPage).toContain("same browser and on the same Gather address");
     expect(signInPage).not.toContain("console.");
-    expect(source("components/sign-in-form.tsx")).toContain("we’ll sign you in automatically");
+    expect(source("components/sign-in-form.tsx")).toContain('router.replace("/check-email")');
+    expect(source("app/check-email/page.tsx")).toContain("we’ll finish signing you in automatically");
   });
 
   it("does not reference server secrets from browser-facing modules", () => {
@@ -58,6 +59,7 @@ describe("hosted-development security regression contract", () => {
   it("keeps username resolution behind a server-only admin client", () => {
     expect(source("lib/supabase/admin.ts")).toContain('import "server-only"');
     expect(source("lib/actions/auth.ts")).toContain("resolve_login_email_by_username");
+    expect(source("lib/actions/auth.ts")).toContain("checkUsernameAvailabilityAction");
     expect(source("components/sign-in-form.tsx")).not.toContain("resolve_login_email_by_username");
   });
 

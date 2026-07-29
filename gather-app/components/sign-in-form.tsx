@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { signInWithPasswordAction } from "@/lib/actions/auth";
+import { checkUsernameAvailabilityAction, signInWithPasswordAction } from "@/lib/actions/auth";
+import { signUpErrorMessage } from "@/lib/auth-errors";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type AuthMode = "signIn" | "signUp";
@@ -31,14 +32,19 @@ export function SignInForm({ next, mode = "signIn" }: { next?: string; mode?: Au
       }
       setPending(true);
       setMessage(undefined);
-      const result = await signInWithPasswordAction({ identifier, password });
-      setPending(false);
-      if (result.error) {
-        setMessage(result.error);
-        return;
+      try {
+        const result = await signInWithPasswordAction({ identifier, password });
+        if (result.error) {
+          setMessage(result.error);
+          return;
+        }
+        router.replace(next ?? "/dashboard");
+        router.refresh();
+      } catch {
+        setMessage("Authentication is temporarily unavailable. Please try again shortly.");
+      } finally {
+        setPending(false);
       }
-      router.replace(next ?? "/dashboard");
-      router.refresh();
       return;
     }
 
@@ -62,10 +68,15 @@ export function SignInForm({ next, mode = "signIn" }: { next?: string; mode?: Au
     setPending(true);
     setMessage(undefined);
     try {
+      const availability = await checkUsernameAvailabilityAction(username);
+      if (availability.error) {
+        setMessage(availability.error);
+        return;
+      }
       const supabase = createBrowserSupabaseClient();
       const callbackUrl = new URL("/auth/callback", window.location.origin);
       if (next) callbackUrl.searchParams.set("next", next);
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -73,11 +84,16 @@ export function SignInForm({ next, mode = "signIn" }: { next?: string; mode?: Au
           data: { username, display_name: displayName }
         }
       });
-      setMessage(
-        error
-          ? "We couldn’t create that account. Try another username or sign in if you already have an account."
-          : "Check your email to confirm your account. Keep using this same browser and Gather address—we’ll sign you in automatically."
-      );
+      if (error) {
+        setMessage(signUpErrorMessage(error));
+        return;
+      }
+      if (data.session) {
+        router.replace(next ?? "/account");
+        router.refresh();
+        return;
+      }
+      router.replace("/check-email");
     } catch {
       setMessage("Account creation is unavailable until Supabase is configured.");
     } finally {

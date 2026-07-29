@@ -38,6 +38,8 @@ Set the hosted development project's Site URL to the preview origin (`https://<p
 
 The account-confirmation email must be opened in the same browser profile and on the same deployed Gather hostname where sign-up began. A successful confirmation establishes the session automatically; it must not ask for the password again. Do not change the flow to implicit tokens to accommodate an automated browser.
 
+Supabase's built-in SMTP service is suitable only for limited development testing. It sends only to addresses belonging to members of the Supabase organisation and currently permits two auth emails per hour across the project. For any broader hosted test, configure a development-only custom SMTP provider and review its cost before enabling it. Check Supabase Auth logs first when a confirmation email is not delivered; do not disable email confirmation to work around delivery.
+
 ## Preview environment variables
 
 Set these exact variables in the preview environment, using the names in `.env.example`:
@@ -71,6 +73,7 @@ Never reuse the local encryption key. The encryption key must not use a `NEXT_PU
 Use a normal browser profile for the host and an independent incognito/private profile or separate browser for the guest. Use two email addresses you control and a fake address such as `12 Example Street, London E8 1AA`.
 
 1. Host creates an account with a fake email, unique username, and password, opens the confirmation email in the same host profile, then completes the profile.
+   The sign-up form must navigate to `/check-email`; the callback must establish the session without asking for the password again.
 2. Host creates a housewarming, using the fake address.
 3. Guest signs in in the separate profile. Host creates a private invitation for that existing account.
 4. Guest opens the invitation and confirms it shows title, time, broad area, and the locked-address message only.

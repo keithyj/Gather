@@ -76,6 +76,24 @@ Acceptance criteria:
 - A successful confirmation continues to establish an authenticated session through `/auth/callback`.
 - A failed code exchange renders a clear, non-sensitive same-browser/same-host recovery message instead of looking like a second required sign-in.
 - No code, token, email address, or internal authentication error is rendered or logged.
+
+## 2026-07-29 — Authentication completion screen and delivery diagnostics
+
+Chosen slice: make password sign-up a single submission followed by a dedicated confirmation screen, while surfacing safe Supabase delivery and callback failures.
+
+Acceptance criteria:
+
+- Successful sign-up navigates to `/check-email` rather than leaving success copy under the form.
+- The confirmation screen contains no email address, password, token, or browser-persisted sign-up data.
+- Duplicate usernames are rejected by a server-only availability check and remain protected by the database unique constraint.
+- Supabase error codes are mapped to clear copy for unconfirmed email, rate limiting, expired confirmation, browser mismatch, and service unavailability.
+- Invalid email/password responses remain deliberately generic so the form cannot be used to enumerate registered email accounts.
+- Hosted email delivery is not claimed as verified until Supabase Auth logs and a real confirmation message demonstrate it.
+
+Local verification passed: `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` (30 tests), `pnpm test:permissions` (17 tests), `pnpm test:permissions:integration` (11 pgTAP assertions), `pnpm supabase test db` (11 pgTAP assertions), `pnpm build`, and `pnpm test:e2e` (2 browser tests).
+
+Hosted verification remains incomplete. The project owner must inspect Supabase Auth logs for the attempted confirmation and verify that the test address is authorised for the built-in SMTP service or configure a development SMTP provider. The built-in provider's current two-email-per-hour project limit may also require waiting before another attempt. No hosted settings, external provider, or production resource was changed in this implementation run.
+
 - Replaced the mock repository with a server-only approved-details repository. AES-GCM encryption happens before sensitive details enter the database; decryption occurs only after an approved-membership lookup and RLS-sensitive-table query.
 - Migration for profiles, trusted connections, private events, separate sensitive details, invitations, membership/attendance, plus-one requests, and audit records.
 - RLS policies plus atomic RPCs for event creation, invitations, guest responses, host approval, revocation/removal, controlled plus-one proposals, and capacity enforcement.

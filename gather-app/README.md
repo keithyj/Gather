@@ -28,7 +28,8 @@ Without Supabase environment variables the app remains in a disabled local-UI st
 ## Authentication routes
 
 - `/sign-in` accepts an email address or unique username plus password, then redirects an existing signed-in user to their dashboard (or the safe private route they originally requested).
-- `/sign-up` creates a minimal account with a unique username and password, then confirms its email through the existing Supabase callback.
+- `/sign-up` creates a minimal account with a unique username and password, then redirects to `/check-email`.
+- `/check-email` explains email confirmation and same-browser recovery without putting an email address in the URL or browser storage.
 - `/auth/callback` completes the secure Supabase confirmation exchange. Configure this exact path in Supabase Auth redirect URLs.
 - With Supabase configured, `/create`, `/account`, `/dashboard`, `/invitations`, invitation, and host-management routes enforce authentication server-side. The public landing page exposes sign-in, sign-up, and session-aware account navigation.
 

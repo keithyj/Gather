@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { confirmationErrorKind } from "@/lib/auth-errors";
 import { getPublicEnvironment } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -26,9 +27,13 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const destination = new URL(safeNext(url.searchParams.get("next")), url.origin);
+  const providerError = url.searchParams.get("error_code") ?? undefined;
   if (!code) {
     destination.pathname = "/sign-in";
-    destination.searchParams.set("error", "missing_code");
+    destination.searchParams.set(
+      "error",
+      providerError ? confirmationErrorKind(providerError) : "missing_code"
+    );
     return privateRedirect(destination);
   }
   try {
@@ -53,10 +58,13 @@ export async function GET(request: Request) {
     );
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return response;
+    destination.pathname = "/sign-in";
+    destination.searchParams.set("error", confirmationErrorKind(error.code));
+    return privateRedirect(destination);
   } catch {
     // Deliberately avoid logging codes or auth errors.
   }
   destination.pathname = "/sign-in";
-  destination.searchParams.set("error", "link_unavailable");
+  destination.searchParams.set("error", "confirmation_unavailable");
   return privateRedirect(destination);
 }

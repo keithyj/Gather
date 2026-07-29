@@ -21,12 +21,15 @@ export default async function SignInPage({
 }) {
   const parameters = await searchParams;
   const next = safeNext(parameters.next);
-  const confirmationProblem =
-    parameters.error === "link_unavailable"
-      ? "We couldn’t finish email confirmation in this browser. Open a fresh confirmation email in the same browser and on the same Gather address where you created your account."
-      : parameters.error === "missing_code"
-        ? "That confirmation link is incomplete. Request a fresh confirmation email from the same browser where you created your account."
-        : undefined;
+  const confirmationProblem = {
+    confirmation_browser_mismatch:
+      "We couldn’t finish confirmation in this browser. Request a fresh link and open it in the same browser and on the same Gather address where you signed up.",
+    confirmation_expired:
+      "That confirmation link has expired or has already been used. Return to sign up to request a fresh confirmation.",
+    confirmation_unavailable:
+      "Email confirmation is temporarily unavailable. Please wait a moment and try again.",
+    missing_code: "That confirmation link is incomplete. Return to sign up to request a fresh confirmation."
+  }[parameters.error ?? ""];
   if (isSupabaseConfigured()) {
     const supabase = await createServerSupabaseClient();
     const {

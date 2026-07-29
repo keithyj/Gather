@@ -13,8 +13,13 @@ test("landing page offers a clear sign-in entry point", async ({ page }) => {
   await expect(page.getByLabel("Username")).toBeVisible();
   await expect(page.getByLabel("Email address")).toBeVisible();
   await expect(page.getByLabel("Password")).toBeVisible();
-  await page.goto("/sign-in?error=link_unavailable");
+  await page.goto("/check-email");
+  await expect(page.getByRole("heading", { name: "Check your email." })).toBeVisible();
+  await expect(page.getByText("we’ll finish signing you in automatically")).toBeVisible();
+  await page.goto("/sign-in?error=confirmation_browser_mismatch");
   await expect(page.getByRole("alert")).toContainText("same browser and on the same Gather address");
+  await page.goto("/sign-in?error=confirmation_expired");
+  await expect(page.getByRole("alert")).toContainText("expired or has already been used");
 });
 
 test("create flow keeps an exact address out of the public preview route", async ({ page }) => {
